@@ -1,7 +1,46 @@
 @import "tailwindcss";
 
+@theme {
+  /* --color-primary: var(--primary);
+  --color-background: var(--background);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-dialog: var(--dialog); */
+}
+
+@layer utilities {
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-background {
+    background-color: var(--background);
+  }
+}
+:root {
+  --red: var(--color-red-700);
+  --green: var(--color-green-700);
+  --primary: var(--red);
+  --background: var;
+  --dialog: #fca5a5;
+}
+
+.red-theme {
+  --primary: var(--color-red-700);
+  --background: var(--color-red-400);
+}
+
+.green-theme {
+  --primary: var(--green);
+  --background: #6ad64f;
+}
+
 @layer components {
   button {
-    @apply px-1 bg-red-700 text-black cursor-pointer;
+    @apply px-1 text-black cursor-pointer;
+    background-color: var(--primary);
+  }
+
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
   }
 }

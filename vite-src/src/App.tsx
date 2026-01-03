@@ -79,14 +79,14 @@ function App() {
   return (
     <div
       className={
-        " min-h-screen p-2 " +
-        (state === "break" ? "bg-[#6ad64f]" : "bg-red-400")
+        " min-h-screen p-2 bg-background " +
+        (state === "break" ? "green-theme" : "red-theme")
       }
     >
       <header className="flex">
         <button
           onClick={() => dialogRef.current?.showModal()}
-          className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center font-semibold"
+          className=" ml-auto px-3 py-1 bg-primary rounded-full text-center font-semibold"
         >
           {completedCycles}
         </button>
@@ -99,14 +99,7 @@ function App() {
         </h1>
         <button
           onClick={buttonclick}
-          className={
-            "group size-42 rounded-full font-bold flex flex-col justify-center border-4 hover:border-black " +
-            (state === "work"
-              ? " bg-red-700 border-red-700"
-              : state === "break"
-              ? " bg-green-600 border-green-600"
-              : "")
-          }
+          className="group size-42 rounded-full font-bold flex flex-col justify-center border-4 hover:border-black bg-primary border-primary"
         >
           <span className="text-4xl ">{formatTime(time)}</span>
           <span className=" text-lg font-medium invisible group-hover:visible relative top-2">
@@ -126,7 +119,7 @@ function App() {
           )}
           {isPaused && (
             <button
-              className=" bg-transparent border-2 text-black opacity-70 px-2 hover:bg-red-500 hover:opacity-100 font-semibold"
+              className=" bg-transparent border-2 text-black opacity-70 px-2 hover:bg-primary hover:opacity-100 font-semibold"
               onClick={reset}
             >
               Reset
@@ -140,7 +133,7 @@ function App() {
         onClick={(e) =>
           e.target === dialogRef.current && dialogRef.current?.close()
         }
-        className="bg-red-300 p-2 rounded-lg mx-auto mt-20 w-100"
+        className="bg-background p-2 rounded-lg mx-auto mt-20 w-100"
       >
         <div className="p-4 relative">
           <button
