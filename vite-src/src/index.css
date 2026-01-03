@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@layer components {
+  button {
+    @apply px-1 bg-red-700 text-black;
+  }
+}

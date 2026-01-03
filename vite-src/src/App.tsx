@@ -1,0 +1,112 @@
+import { useEffect, useState } from "react";
+
+type TimerState = "idle" | "work" | "break";
+
+function App() {
+  const [state, setState] = useState<TimerState>("idle");
+  const [time, setTime] = useState(40 * 60);
+  const [isPaused, setIsPaused] = useState(false);
+  const [completedCycles, setCompletedCycles] = useState(0);
+
+  const workDuration = 10 * 60;
+  const breakDuration = 10 * 60;
+
+  useEffect(() => {
+    if (!isPaused && state !== "idle") {
+      const interval = setInterval(() => {
+        setTime((prev) => prev - 1);
+      }, 10);
+
+      return () => clearInterval(interval);
+    }
+  }, [isPaused, state]);
+
+  const startWork = () => {
+    setState("work");
+    setTime(workDuration);
+    setIsPaused(false);
+  };
+
+  const startBreak = () => {
+    setState("break");
+    setTime(breakDuration);
+    setIsPaused(false);
+  };
+
+  const togglePause = () => setIsPaused((prev) => !prev);
+
+  const reset = () => {
+    setState("idle");
+    setTime(workDuration);
+    setIsPaused(false);
+  };
+
+  const finishCycle = () => {
+    setCompletedCycles((prev) => prev + 1);
+    reset();
+  };
+
+  const formatTime = (seconds: number) => {
+    const sign = seconds < 0 ? "-" : "";
+    const abs = Math.abs(seconds);
+    const mins = Math.floor(abs / 60);
+    const secs = abs % 60;
+    return `${sign}${String(mins).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
+  const buttonclick = () => {
+    if (state === "idle") startWork();
+    if (state !== "idle") togglePause();
+  };
+
+  return (
+    <div className="bg-red-400 min-h-screen p-2">
+      <header className="flex">
+        <span className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center">
+          {completedCycles}
+        </span>
+      </header>
+      <div className=" flex flex-col items-center">
+        <h1 className=" text-2xl font-semibold mb-6">
+          {state === "idle" && "Pomodoro timer"}
+          {state === "work" && "Working"}
+          {state === "break" && "Breaktime"}
+        </h1>
+        <button
+          onClick={buttonclick}
+          className="group bg-red-700 size-40 rounded-full font-bold flex flex-col justify-center border-4 border-red-700 hover:border-black"
+        >
+          <span className="text-4xl ">{formatTime(time)}</span>
+          <span className=" text-lg font-medium invisible group-hover:visible relative top-2">
+            {state === "idle" ? "start" : isPaused ? "resume" : "pause"}
+          </span>
+        </button>
+        <div
+          className={" mt-4 flex gap-2 " + (state === "idle" ? "hidden" : "")}
+        >
+          {time <= 0 && (
+            <button
+              className=" bg-transparent border-2 border-red-950 text-red-950 px-2 hover:bg-red-700 hover:text-black font-bold"
+              onClick={state === "work" ? startBreak : finishCycle}
+            >
+              {state === "work" ? "Start Break" : "Finish"}
+            </button>
+          )}
+          {isPaused && (
+            <button
+              className=" bg-transparent border-2 border-red-950 text-red-950 px-2 hover:bg-red-700 hover:text-black font-bold"
+              onClick={reset}
+            >
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
