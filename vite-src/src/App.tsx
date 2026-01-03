@@ -9,8 +9,8 @@ function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [completedCycles, setCompletedCycles] = useState(0);
 
-  const workDuration = 10 * 60;
-  const breakDuration = 10 * 60;
+  const [workDuration, setWorkDuration] = useState(40 * 60);
+  const [breakDuration, setBreakDuration] = useState(6 * 60);
 
   useEffect(() => {
     if (!isPaused && state !== "idle") {
@@ -63,6 +63,19 @@ function App() {
     if (state !== "idle") togglePause();
   };
 
+  const handleWorkDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = Number(e.target.value) * 60;
+    setWorkDuration(newVal);
+    if (state === "idle") setTime(newVal);
+  };
+
+  const handleBreakDurationChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newVal = Number(e.target.value) * 60;
+    setBreakDuration(newVal);
+  };
+
   return (
     <div className="bg-red-400 min-h-screen p-2">
       <header className="flex">
@@ -73,29 +86,7 @@ function App() {
           {completedCycles}
         </button>
       </header>
-      <dialog
-        ref={dialogRef}
-        onClick={(e) =>
-          e.target === dialogRef.current && dialogRef.current?.close()
-        }
-        className="bg-red-300 p-2 rounded-lg mx-auto mt-20 w-100"
-      >
-        <div className="pb-4">
-          <button
-            onClick={() => dialogRef.current?.close()}
-            className="ml-auto block px-2 bg-transparent"
-          >
-            X
-          </button>
-          <div className=" flex flex-col items-center">
-            <p>Completed {completedCycles} cycles today</p>
-            <button className="mx-auto" onClick={() => setCompletedCycles(0)}>
-              reset
-            </button>
-          </div>
-        </div>
-      </dialog>
-      <div className=" flex flex-col items-center">
+      <main className=" flex flex-col items-center">
         <h1 className=" text-2xl font-semibold mb-6">
           {state === "idle" && "Pomodoro timer"}
           {state === "work" && "Working"}
@@ -122,7 +113,7 @@ function App() {
         >
           {time <= 0 && (
             <button
-              className=" bg-transparent border-2 border-red-950 text-red-950 px-2 hover:bg-red-700 hover:text-black font-bold"
+              className=" border- font-semibold"
               onClick={state === "work" ? startBreak : finishCycle}
             >
               {state === "work" ? "Start Break" : "Finish"}
@@ -130,14 +121,56 @@ function App() {
           )}
           {isPaused && (
             <button
-              className=" bg-transparent border-2 border-red-950 text-red-950 px-2 hover:bg-red-700 hover:text-black font-bold"
+              className=" bg-transparent border-2 text-black opacity-70 px-2 hover:bg-red-500 hover:opacity-100 font-semibold"
               onClick={reset}
             >
               Reset
             </button>
           )}
         </div>
-      </div>
+      </main>
+
+      <dialog
+        ref={dialogRef}
+        onClick={(e) =>
+          e.target === dialogRef.current && dialogRef.current?.close()
+        }
+        className="bg-red-300 p-2 rounded-lg mx-auto mt-20 w-100"
+      >
+        <div className="p-4 relative">
+          <button
+            onClick={() => dialogRef.current?.close()}
+            className=" absolute top-0 right-0  px-2 bg-transparent"
+          >
+            X
+          </button>
+          <div className=" flex flex-col items-center">
+            <p>Completed {completedCycles} cycles today</p>
+            <button className="mx-auto" onClick={() => setCompletedCycles(0)}>
+              reset
+            </button>
+          </div>
+
+          <div className=" mt-4">
+            <label className="block mb-2">Work (minutes):</label>
+            <input
+              type="number"
+              value={workDuration / 60}
+              onChange={handleWorkDurationChange}
+              className="w-full p-2 rounded mb-4"
+              min="1"
+            />
+            <label className="block mb-2">Break (minutes):</label>
+            <input
+              type="number"
+              value={breakDuration / 60}
+              onChange={handleBreakDurationChange}
+              className="w-full p-2 rounded"
+              min="1"
+            />
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
