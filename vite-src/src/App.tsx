@@ -77,11 +77,16 @@ function App() {
   };
 
   return (
-    <div className="bg-red-400 min-h-screen p-2">
+    <div
+      className={
+        " min-h-screen p-2 " +
+        (state === "break" ? "bg-[#6ad64f]" : "bg-red-400")
+      }
+    >
       <header className="flex">
         <button
           onClick={() => dialogRef.current?.showModal()}
-          className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center"
+          className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center font-semibold"
         >
           {completedCycles}
         </button>
