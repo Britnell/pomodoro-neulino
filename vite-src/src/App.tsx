@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type TimerState = "idle" | "work" | "break";
 
 function App() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [state, setState] = useState<TimerState>("idle");
   const [time, setTime] = useState(40 * 60);
   const [isPaused, setIsPaused] = useState(false);
@@ -65,10 +66,35 @@ function App() {
   return (
     <div className="bg-red-400 min-h-screen p-2">
       <header className="flex">
-        <span className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center">
+        <button
+          onClick={() => dialogRef.current?.showModal()}
+          className=" ml-auto px-3 py-1 bg-red-700 rounded-full text-center"
+        >
           {completedCycles}
-        </span>
+        </button>
       </header>
+      <dialog
+        ref={dialogRef}
+        onClick={(e) =>
+          e.target === dialogRef.current && dialogRef.current?.close()
+        }
+        className="bg-red-300 p-2 rounded-lg mx-auto mt-20 w-100"
+      >
+        <div className="pb-4">
+          <button
+            onClick={() => dialogRef.current?.close()}
+            className="ml-auto block px-2 bg-transparent"
+          >
+            X
+          </button>
+          <div className=" flex flex-col items-center">
+            <p>Completed {completedCycles} cycles today</p>
+            <button className="mx-auto" onClick={() => setCompletedCycles(0)}>
+              reset
+            </button>
+          </div>
+        </div>
+      </dialog>
       <div className=" flex flex-col items-center">
         <h1 className=" text-2xl font-semibold mb-6">
           {state === "idle" && "Pomodoro timer"}
@@ -77,7 +103,14 @@ function App() {
         </h1>
         <button
           onClick={buttonclick}
-          className="group bg-red-700 size-40 rounded-full font-bold flex flex-col justify-center border-4 border-red-700 hover:border-black"
+          className={
+            "group size-42 rounded-full font-bold flex flex-col justify-center border-4 hover:border-black " +
+            (state === "work"
+              ? " bg-red-700 border-red-700"
+              : state === "break"
+              ? " bg-green-600 border-green-600"
+              : "")
+          }
         >
           <span className="text-4xl ">{formatTime(time)}</span>
           <span className=" text-lg font-medium invisible group-hover:visible relative top-2">
