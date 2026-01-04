@@ -8,6 +8,11 @@ type Settings = {
   breakDuration: number;
 };
 
+const DEFAULT_SETTINGS: Settings = {
+  workDuration: 40 * 60,
+  breakDuration: 6 * 60,
+};
+
 function App() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const mountedRef = useRef(false);
@@ -16,10 +21,7 @@ function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [completedCycles, setCompletedCycles] = useState(0);
 
-  const [settings, setSettings] = useState<Settings>({
-    workDuration: 40 * 60,
-    breakDuration: 6 * 60,
-  });
+  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -27,7 +29,11 @@ function App() {
         try {
           const saved = await Neutralino.storage.getData("pomodoroSettings");
           if (saved) {
-            setSettings(JSON.parse(saved));
+            const mergedSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+            setSettings(mergedSettings);
+            if (state === "idle") {
+              setTime(mergedSettings.workDuration);
+            }
           }
         } catch (e) {}
       };
