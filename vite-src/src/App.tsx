@@ -1,9 +1,12 @@
 import { useEffect, useState, useRef } from "react";
+import Neutralino from "@neutralinojs/lib";
 
 type TimerState = "idle" | "work" | "break";
 
 function App() {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef(false);
   const [state, setState] = useState<TimerState>("idle");
   const [time, setTime] = useState(40 * 60);
   const [isPaused, setIsPaused] = useState(false);
@@ -13,9 +16,21 @@ function App() {
   const [breakDuration, setBreakDuration] = useState(6 * 60);
 
   useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
     if (!isPaused && state !== "idle") {
       const interval = setInterval(() => {
-        setTime((prev) => prev - 1);
+        setTime((prev) => {
+          const newTime = prev - 1;
+          if (newTime === 0) {
+            Neutralino.window.show();
+            Neutralino.window.focus();
+          }
+          return newTime;
+        });
       }, 10);
 
       return () => clearInterval(interval);
