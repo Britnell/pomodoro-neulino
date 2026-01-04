@@ -3,22 +3,36 @@ import Neutralino from "@neutralinojs/lib";
 
 type TimerState = "idle" | "work" | "break";
 
+type Settings = {
+  workDuration: number;
+  breakDuration: number;
+};
+
 function App() {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(false);
   const [state, setState] = useState<TimerState>("idle");
   const [time, setTime] = useState(40 * 60);
   const [isPaused, setIsPaused] = useState(false);
   const [completedCycles, setCompletedCycles] = useState(0);
 
-  const [workDuration, setWorkDuration] = useState(40 * 60);
-  const [breakDuration, setBreakDuration] = useState(6 * 60);
+  const [settings, setSettings] = useState<Settings>({
+    workDuration: 40 * 60,
+    breakDuration: 6 * 60,
+  });
 
   useEffect(() => {
     if (!mountedRef.current) {
+      const loadSettings = async () => {
+        try {
+          const saved = await Neutralino.storage.getData("pomodoroSettings");
+          if (saved) {
+            setSettings(JSON.parse(saved));
+          }
+        } catch (e) {}
+      };
+      loadSettings();
       mountedRef.current = true;
-      return;
     }
 
     if (!isPaused && state !== "idle") {
@@ -37,15 +51,19 @@ function App() {
     }
   }, [isPaused, state]);
 
+  useEffect(() => {
+    Neutralino.storage.setData("pomodoroSettings", JSON.stringify(settings));
+  }, [settings]);
+
   const startWork = () => {
     setState("work");
-    setTime(workDuration);
+    setTime(settings.workDuration);
     setIsPaused(false);
   };
 
   const startBreak = () => {
     setState("break");
-    setTime(breakDuration);
+    setTime(settings.breakDuration);
     setIsPaused(false);
   };
 
@@ -53,7 +71,7 @@ function App() {
 
   const reset = () => {
     setState("idle");
-    setTime(workDuration);
+    setTime(settings.workDuration);
     setIsPaused(false);
   };
 
@@ -80,7 +98,7 @@ function App() {
 
   const handleWorkDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = Number(e.target.value) * 60;
-    setWorkDuration(newVal);
+    setSettings((prev) => ({ ...prev, workDuration: newVal }));
     if (state === "idle") setTime(newVal);
   };
 
@@ -88,7 +106,7 @@ function App() {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const newVal = Number(e.target.value) * 60;
-    setBreakDuration(newVal);
+    setSettings((prev) => ({ ...prev, breakDuration: newVal }));
   };
 
   return (
@@ -168,7 +186,7 @@ function App() {
             <label className="block mb-2">Work (minutes):</label>
             <input
               type="number"
-              value={workDuration / 60}
+              value={settings.workDuration / 60}
               onChange={handleWorkDurationChange}
               className="w-full p-2 rounded mb-4"
               min="1"
@@ -176,7 +194,7 @@ function App() {
             <label className="block mb-2">Break (minutes):</label>
             <input
               type="number"
-              value={breakDuration / 60}
+              value={settings.breakDuration / 60}
               onChange={handleBreakDurationChange}
               className="w-full p-2 rounded"
               min="1"
